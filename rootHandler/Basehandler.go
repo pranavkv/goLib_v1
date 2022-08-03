@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	errors "msflib/libError"
+	errors "github.com/pranavkv/goLib_v1/libError"
 )
 
 type RootHandler func(http.ResponseWriter, *http.Request) error
