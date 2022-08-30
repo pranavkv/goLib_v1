@@ -1,4 +1,4 @@
-package libError
+package golib_v1
 
 type ClientError interface {
 

@@ -1,4 +1,4 @@
-package LibUtils
+package golib_v1
 
 import (
 	"math/rand"

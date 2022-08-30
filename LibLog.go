@@ -1,9 +1,8 @@
-package LibUtils
+package golib_v1
 
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	data "github.com/pranavkv/golib_v1/LibData"
   )
 
 
@@ -13,7 +12,7 @@ type StandardLogger struct {
 	*log.Entry
 }
 
-func (l *StandardLogger) LogRequest(req data.GoLibRequest) {
+func (l *StandardLogger) LogRequest(req GoLibRequest) {
 	resBody, _ := json.Marshal(req)
 	l.Info("Request Received: ", resBody)
   }

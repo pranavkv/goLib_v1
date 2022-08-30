@@ -1,4 +1,4 @@
-package LibData
+package golib_v1
 
 type GoLibRequest struct {
 	Data         map[string]interface{} `json:"data"`
