@@ -12,34 +12,10 @@ var mySigningKey = []byte("captainjacksparrowsayshi")
 
 type RootHandler func(http.ResponseWriter, *http.Request) (GoLibResponse,error)
 
+type SessionHandler func(http.ResponseWriter, *http.Request) (GoLibResponse,error)
+
 func init() {  
 	// utils.Logger.Debug("Roothandler initialized")
-}
-
-func SessionService(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-        if r.Header["Authorization"] != nil {
-
-            token, err := jwt.Parse(r.Header["Authorization"][0], func(token *jwt.Token) (interface{}, error) {
-                if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-                    return nil, fmt.Errorf("There was an error")
-                }
-                return mySigningKey, nil
-            })
-
-            if err != nil {
-                fmt.Fprintf(w, err.Error())
-            }
-
-            if token.Valid {
-                endpoint(w, r)
-            }
-        } else {
-
-            fmt.Fprintf(w, "Not Authorized")
-        }
-    })
 }
 
 func ProcessRequest(w http.ResponseWriter, r *http.Request) (GoLibRequest,GoLibResponse, error) {
@@ -69,6 +45,46 @@ func (fn RootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if(err != nil) {
 		res.Error = err
 
+	}
+	
+	resBody, err := json.Marshal(res)
+		if err != nil {
+			w.WriteHeader(500)
+		} else {
+			w.WriteHeader(200)
+			w.Write(resBody)
+		}
+
+	Logger.Infof("response sent: %v", string(resBody))
+
+}
+
+func (fn SessionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	res := GoLibResponse{MsgId : GetMsgID()}
+
+	if r.Header["Authorization"] != nil {
+
+		token, err := jwt.Parse(r.Header["Authorization"][0], func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("There was an error")
+			}
+			return mySigningKey, nil
+		})
+
+		if err != nil {
+			fmt.Fprintf(w, err.Error())
+		}
+
+		if token.Valid {
+			res,err := fn(w,r)
+			if(err != nil) {
+				res.Error = err
+			}
+		}
+	} else {
+        res.Error = NewHTTPError(nil, 401, "UnAuthorized request received.", "EGN003")
+		fmt.Fprintf(w, "Not Authorized")
 	}
 	
 	resBody, err := json.Marshal(res)
