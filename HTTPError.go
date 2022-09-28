@@ -1,14 +1,19 @@
+/*
+Author: Pranav KV
+Mail: pranavkvnambiar@gmail.com
+*/
 package golib_v1
 
 import (
 	"encoding/json"
 	"fmt"
 )
+
 type HTTPError struct {
-	Cause  error  `json:"-"`
+	Cause   error  `json:"-"`
 	InfoMsg string `json:"InfoMsg"`
-	InfoId string `json:"InfoId"`
-	Status int    `json:"-"`
+	InfoId  string `json:"InfoId"`
+	Status  int    `json:"-"`
 }
 
 func (e *HTTPError) Error() string {
@@ -36,9 +41,9 @@ func (e *HTTPError) ResponseHeaders() (int, map[string]string) {
 
 func NewHTTPError(err error, status int, infoMsg string, infoId string) error {
 	return &HTTPError{
-		Cause:  err,
+		Cause:   err,
 		InfoMsg: infoMsg,
-		InfoId: infoId,
-		Status: status,
+		InfoId:  infoId,
+		Status:  status,
 	}
 }

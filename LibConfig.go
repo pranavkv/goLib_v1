@@ -1,25 +1,39 @@
+/*
+Author: Pranav KV
+Mail: pranavkvnambiar@gmail.com
+*/
 package golib_v1
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
-  )
 
- func InitConfi() {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	viper.AutomaticEnv()
+	config "github.com/spf13/viper"
+)
 
-	viper.SetConfigType("yml")
-	if err := viper.ReadInConfig(); err != nil {
+func InitConfig(path string) {
+	config.SetConfigName("config")
+	config.AddConfigPath(".")
+	config.AutomaticEnv()
+
+	config.SetConfigType("yml")
+	if err := config.ReadInConfig(); err != nil {
 		fmt.Printf("Error reading config file, %s", err)
+		config.SetConfigType("properties")
+		_ = config.ReadInConfig()
 	}
 
-	// viper.SetDefault("database.dbname", "test_db")
-	// var configuration c.Configurations
-	// err := viper.Unmarshal(&configuration)
-	// if err != nil {
-	// 	fmt.Printf("Unable to decode into struct, %v", err)
-	// }
-	
- }
+}
+
+//TODO: throw key not found exception
+
+func GetString(key string) string {
+	return config.GetString(key)
+}
+
+func GetInt(key string) int {
+	return config.GetInt(key)
+}
+
+func GetBoolean(key string) bool {
+	return config.GetBool(key)
+}

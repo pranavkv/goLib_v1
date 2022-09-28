@@ -1,15 +1,18 @@
+/*
+Author: Pranav KV
+Mail: pranavkvnambiar@gmail.com
+*/
 package golib_v1
 
 type GoLibRequest struct {
-	Data         map[string]interface{} `json:"data"`
-	AppId        string                 `json:"appID"`
-	MsgId        string                 `json:"msgID"`
-	Access_token string                 `json:"access_token"`
+	Data  map[string]interface{} `json:"data"`
+	AppId string                 `json:"appID"`
+	MsgId string                 `json:"msgID"`
 }
 
 type GoLibResponse struct {
-	Data         map[string]interface{} `json:"data"`
-	AppId        string                 `json:"appID"`
-	MsgId        string                 `json:"msgID"`
-	Error		 error					`json:"error"`
+	Data  map[string]interface{} `json:"data"`
+	AppId string                 `json:"appID"`
+	MsgId string                 `json:"msgID"`
+	Error error                  `json:"error"`
 }
