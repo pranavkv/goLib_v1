@@ -11,8 +11,10 @@ type GoLibRequest struct {
 }
 
 type GoLibResponse struct {
-	Data  map[string]interface{} `json:"data"`
-	AppId string                 `json:"appID"`
-	MsgId string                 `json:"msgID"`
-	Error error                  `json:"error"`
+	Data    map[string]interface{} `json:"data"`
+	AppId   string                 `json:"appID"`
+	MsgId   string                 `json:"msgID"`
+	Error   string                 `json:"error"`
+	InfoId  string                 `json:"infoID"`
+	InfoMsg string                 `json:"infoMsg"`
 }

@@ -7,6 +7,7 @@ package golib_v1
 import (
 	"encoding/json"
 
+	"os"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,6 +26,14 @@ func InitLog(serviceName string, hostName string) *StandardLogger {
 
 	var baseLogger = log.New()
 	baseLogger.Formatter = &log.JSONFormatter{}
+	
+	file, err := os.OpenFile(serviceName+".log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		baseLogger.Fatal("Failed to create logfile" +serviceName )
+		baseLogger.Fatal(err)
+		defer file.Close()
+	}
+	baseLogger.SetOutput(file)
 
 	childLogger := baseLogger.WithFields(log.Fields{
 		"service": serviceName,

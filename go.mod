@@ -4,9 +4,13 @@ go 1.18
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-redis/redis/v8 v8.11.5
+	github.com/prometheus/client_golang v1.12.2
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
+	go.mongodb.org/mongo-driver v1.10.3
 	gorm.io/driver/mysql v1.3.6
+	gorm.io/driver/postgres v1.4.4
 	gorm.io/gorm v1.23.10
 )
 

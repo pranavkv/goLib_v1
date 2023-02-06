@@ -5,33 +5,33 @@ Mail: pranavkvnambiar@gmail.com
 package golib_v1
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
-	"strings"
 )
 
-type ResponseObject interface {
-	CheckError() error
-	GetModel() interface{}
-}
-
-type RequestObject interface {
+type CommonRequestObject interface {
 	GetUrl() string
 	GetHeader() http.Header
-	GetModel() interface{}
 }
 
-func PostRequest(req RequestObject, res ResponseObject) error {
+type PostRequestObject interface {
+	CommonRequestObject
+	GetModel() map[string]interface{}
+}
+
+func PostRequest(req PostRequestObject, res interface{}) error {
 
 	var resErr error
 	client := &http.Client{}
-	reqBody, err := json.Marshal(res.GetModel())
+	reqBody, err := json.Marshal(req.GetModel())
+
 	if err != nil {
 		Logger.Error("Encoding request failed: %v", err)
 		resErr = NewHTTPError(err, 400, "Unable to process the request", "EGN004")
 	}
-	reqUrl := req.GetUrl()
-	httpReq, err := http.NewRequest("POST", reqUrl, strings.NewReader(string(reqBody)))
+
+	httpReq, err := http.NewRequest("POST", req.GetUrl(), bytes.NewBuffer(reqBody))
 	if err != nil {
 		Logger.Error("Bad Request: %v", err)
 		resErr = NewHTTPError(err, 400, "Unable to process the request", "EGN004")
@@ -43,7 +43,9 @@ func PostRequest(req RequestObject, res ResponseObject) error {
 
 	httpReq.Header.Add("Accept", "application/json")
 	httpReq.Header.Add("Content-Type", "application/json")
+
 	resp, err := client.Do(httpReq)
+
 	if err != nil {
 		Logger.Error("Unable to connect to: %v", err.Error())
 		resErr = NewHTTPError(err, 400, "Unable to process the request", "EGN004")
@@ -51,6 +53,7 @@ func PostRequest(req RequestObject, res ResponseObject) error {
 
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&res)
+
 	if err != nil {
 		Logger.Error("Invalid API response: %v", err.Error())
 		resErr = NewHTTPError(err, 400, "Unable to process the request", "EGN004")
@@ -59,6 +62,44 @@ func PostRequest(req RequestObject, res ResponseObject) error {
 
 	return resErr
 
+}
+
+func GetRequest(req CommonRequestObject, res interface{}) error {
+
+	var resErr error
+	reqUrl := req.GetUrl()
+	httpReq, err := http.NewRequest(http.MethodGet, reqUrl, nil)
+
+	if err != nil {
+		Logger.Error("Encoding request failed: %v", err)
+		resErr = NewHTTPError(err, 400, "Unable to process the request", "EGN004")
+		return resErr
+	}
+
+	if req.GetHeader() != nil {
+		httpReq.Header = req.GetHeader()
+	}
+
+	httpReq.Header.Add("Accept", "application/json")
+	httpReq.Header.Add("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(httpReq)
+
+	if err != nil {
+		Logger.Error("Unable to connect to: %v", err.Error())
+		resErr = NewHTTPError(err, 400, "Unable to process the request", "EGN004")
+		return resErr
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&res)
+
+	if err != nil {
+		Logger.Error("Unable to connect to: %v", err.Error())
+		resErr = NewHTTPError(err, 400, "Unable to process the request", "EGN004")
+		return resErr
+	}
+
+	return nil
 }
 
 // func PostRequest[T Responser](url string, reqBody []byte, headerMap http.Header) error {

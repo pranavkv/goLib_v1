@@ -1,18 +1,19 @@
 /*
 Author: Pranav KV
-Mail: pranavkvnmabiar@gmail.com
+Mail: pranavkvnambiar@gmail.com
 */
 package main
 
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	lib "github.com/pranavkv/golib_v1"
+	lib "git.marketsimplified.com/Platform-3.0/GoLib-Platform"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -23,41 +24,49 @@ type User struct {
 }
 
 type ApiRequest struct {
-}
-
-func (req ApiRequest) GetUrl() string {
-
-	return "url"
-}
-
-func (req ApiRequest) GetHeader() http.Header {
-
-	var header http.Header
-	return header
-
-}
-
-func (req ApiRequest) GetModel() interface{} {
-	return &req
+	// Url    string
+	// Header http.Header
+	// Model  interface{}
 }
 
 type ApiResponse struct {
 }
 
-func (res ApiResponse) CheckError() error {
-
+func (res *ApiResponse) CheckError() error {
 	return nil
 }
 
-func (res ApiResponse) GetModel() interface{} {
+func (res *ApiResponse) GetResponse() interface{} {
+	return res
+}
 
-	return &res
+func (req ApiRequest) GetUrl() string {
+
+	return "https://dummy.restapiexample.com/api/v1/create"
+}
+
+func (req ApiRequest) GetHeader() http.Header {
+	return http.Header{}
+}
+
+func (req ApiRequest) GetModel() map[string]interface{} {
+	jsonReq := map[string]interface{}{"name": "test", "salary": "123", "age": "23"}
+	return jsonReq
 }
 
 func testApiCall() {
 	var req ApiRequest
-	var res ApiResponse
-	lib.PostRequest(req, res)
+	//var res ApiResponse
+
+	// req.Url = req.GetUrl()
+	// req.Model = req.GetModel()
+	// req.Header = req.GetHeader()
+
+	var res map[string]interface{}
+
+	lib.PostRequest(req, &res)
+
+	fmt.Println("Response from client call ", res)
 }
 
 func testMySQL() {
@@ -67,7 +76,6 @@ func testMySQL() {
 	fmt.Println(out)
 
 	lib.InitMySQL()
-	fmt.Println("finished.....")
 
 	var result User
 
@@ -77,18 +85,44 @@ func testMySQL() {
 
 }
 
+func testPostGreSql() {
+	fmt.Printf("db name = %s", lib.GetString("database.name"))
+
+	lib.InitPostGreSql()
+
+	fmt.Println("Finished")
+}
+
+func testMongoDB() {
+	fmt.Printf("db name = %s", lib.MongoDB)
+
+	lib.InitMongoDB()
+	dbCollection := lib.MongoDB.Collection("employee")
+	fmt.Printf(" Finished connecting with Mongo db ")
+
+	user := User{3, "arun", "email"}
+	insertResult, err := dbCollection.InsertOne(context.TODO(), user)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
+}
+
 func ProcessLogin(request lib.GoLibRequest, response *lib.GoLibResponse) error {
 
 	lib.Logger.Info("requerst received")
 
 	response.Data = make(map[string]interface{})
 	response.Data["name"] = "pranav"
+
 	return nil
 }
 
 func test_rest_service() {
 
 	sm := http.NewServeMux()
+
 	sm.HandleFunc("/login", lib.Process(ProcessLogin))
 	sm.Handle("/metrics", promhttp.Handler())
 
@@ -124,8 +158,10 @@ func main() {
 
 	lib.InitLog("GOTEST", "pranav-PC")
 	lib.InitConfig(".")
-
-	test_rest_service()
+	testApiCall()
+	//testPostGreSql()
+	//testMongoDB()
+	//test_rest_service()
 	// testMySQL()
 
 }
